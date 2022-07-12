@@ -1,0 +1,9 @@
+{
+    "arch": "x86_64",
+    "cpu": "Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz",
+    "machine": "hcc-orange",
+    "num_cpu": "4",
+    "os": "Linux 5.17.11-602.inttf.fc36.x86_64",
+    "ram": "16326544",
+    "version": 1
+}

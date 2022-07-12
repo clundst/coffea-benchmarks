@@ -1,0 +1,200 @@
+{
+    "Q1_Parameters.TimeSuite.TimeQ1": {
+        "code": "class TimeSuite:\n    def TimeQ1(self, n, ncores):\n        class Q1Processor(processor.ProcessorABC):\n            def process(self, events):\n                return (\n                    hist.Hist.new.Reg(100, 0, 200, name=\"met\", label=\"$E_{T}^{miss}$ [GeV]\")\n                    .Double()\n                    .fill(events.MET.pt)\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            #from dask.distributed import Client\n            #client = Client(\"tls://localhost:8786\")\n            executor = processor.FuturesExecutor(workers=ncores, status=False)\n        else:\n            #executor = processor.IterativeExecutor()\n            executor = processor.FuturesExecutor(workers=ncores, status=False)\n        run = processor.Runner(executor=executor,\n                       schema=schemas.NanoAODSchema,\n                       savemetrics=True,\n                       chunksize=n\n                      )\n        run(fileset, \"Events\", processor_instance=Q1Processor())",
+        "min_run_count": 2,
+        "name": "Q1_Parameters.TimeSuite.TimeQ1",
+        "number": 0,
+        "param_names": [
+            "param1",
+            "param2"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ],
+            [
+                "1",
+                "2"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "89afa6d8b1718646ddd42737d6f1e290d8a315cbb4bd388e682247654b8f1d30",
+        "warmup_time": -1
+    },
+    "Q2_Parameters.TimeSuite.TimeQ2": {
+        "code": "class TimeSuite:\n    def TimeQ2(self, n):\n        class Q2Processor(processor.ProcessorABC):\n            def process(self, events):\n                return (\n                    hist.Hist.new.Reg(100, 0, 200, name=\"ptj\", label=\"Jet $p_{T}$ [GeV]\")\n                    .Double()\n                    .fill(ak.flatten(events.Jet.pt))\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n        run = processor.Runner(executor=executor,\n                       schema=schemas.NanoAODSchema,\n                       savemetrics=True,\n                       chunksize=n,\n                      )\n        run(fileset, \"Events\", processor_instance=Q2Processor())",
+        "min_run_count": 2,
+        "name": "Q2_Parameters.TimeSuite.TimeQ2",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "e6860dee0391cd33b048d2a6866bb3eda85486dc5f48899a1df1da044916b592",
+        "warmup_time": -1
+    },
+    "Q3_Parameteres.TimeSuite.TimeQ3": {
+        "code": "class TimeSuite:\n    def TimeQ3(self, n):\n        class Q3Processor(processor.ProcessorABC):\n            def process(self, events):\n                return (\n                    hist.Hist.new.Reg(100, 0, 200, name=\"ptj\", label=\"Jet $p_{T}$ [GeV]\")\n                    .Double()\n                    .fill(ak.flatten(events.Jet[abs(events.Jet.eta) < 1].pt))\n                 )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n    \n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q3Processor())",
+        "min_run_count": 2,
+        "name": "Q3_Parameteres.TimeSuite.TimeQ3",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "0be4f7b0fa0d9cb4c6a1dc267deb6ea56bcfa75894b22e76c97e63e248d64cba",
+        "warmup_time": -1
+    },
+    "Q4_Parameters.TimeSuite.TimeQ4": {
+        "code": "class TimeSuite:\n    def TimeQ4(self, n):\n        class Q4Processor(processor.ProcessorABC):\n            def process(self, events):\n                has2jets = ak.sum(events.Jet.pt > 40, axis=1) >= 2\n                return (\n                    hist.Hist.new.Reg(100, 0, 200, name=\"met\", label=\"$E_{T}^{miss}$ [GeV]\")\n                    .Double()\n                    .fill(events[has2jets].MET.pt)\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q4Processor())",
+        "min_run_count": 2,
+        "name": "Q4_Parameters.TimeSuite.TimeQ4",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "7a185b9f9ea88fbd797d2f7257c4d008a01394b4e01981f7672f1a6501ac94e4",
+        "warmup_time": -1
+    },
+    "Q5_Parameters.TimeSuite.TimeQ5": {
+        "code": "class TimeSuite:\n    def TimeQ5(self, n):\n        class Q5Processor(processor.ProcessorABC):\n            def process(self, events):\n                mupair = ak.combinations(events.Muon, 2)\n                with np.errstate(invalid=\"ignore\"):\n                    pairmass = (mupair.slot0 + mupair.slot1).mass\n                goodevent = ak.any(\n                    (pairmass > 60)\n                    & (pairmass < 120)\n                    & (mupair.slot0.charge == -mupair.slot1.charge),\n                    axis=1,\n                )\n                return (\n                    hist.Hist.new.Reg(100, 0, 200, name=\"met\", label=\"$E_{T}^{miss}$ [GeV]\")\n                    .Double()\n                    .fill(events[goodevent].MET.pt)\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q5Processor())",
+        "min_run_count": 2,
+        "name": "Q5_Parameters.TimeSuite.TimeQ5",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "4f27c94714bc9ff58685abb21d23901a0b47505c6368ed45c59240b58947d4ed",
+        "warmup_time": -1
+    },
+    "Q6_Parameters.TimeSuite.TimeQ6": {
+        "code": "class TimeSuite:\n    def TimeQ6(self, n):\n        class Q6Processor(processor.ProcessorABC):\n            def process(self, events):\n                jets = ak.zip(\n                    {k: getattr(events.Jet, k) for k in [\"x\", \"y\", \"z\", \"t\", \"btag\"]},\n                    with_name=\"LorentzVector\",\n                    behavior=events.Jet.behavior,\n                )\n                trijet = ak.combinations(jets, 3, fields=[\"j1\", \"j2\", \"j3\"])\n                trijet[\"p4\"] = trijet.j1 + trijet.j2 + trijet.j3\n                trijet = ak.flatten(\n                    trijet[ak.singletons(ak.argmin(abs(trijet.p4.mass - 172.5), axis=1))]\n                )\n                maxBtag = np.maximum(\n                    trijet.j1.btag,\n                    np.maximum(\n                        trijet.j2.btag,\n                        trijet.j3.btag,\n                    ),\n                )\n                return {\n                    \"trijetpt\": hist.Hist.new.Reg(\n                        100, 0, 200, name=\"pt3j\", label=\"Trijet $p_{T}$ [GeV]\"\n                    )\n                    .Double()\n                    .fill(trijet.p4.pt),\n                    \"maxbtag\": hist.Hist.new.Reg(\n                        100, 0, 1, name=\"btag\", label=\"Max jet b-tag score\"\n                    )\n                    .Double()\n                    .fill(maxBtag),\n                }\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q6Processor())",
+        "min_run_count": 2,
+        "name": "Q6_Parameters.TimeSuite.TimeQ6",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "a0506f97484819bc7abaa054393c7c0096839bda7a6e82f80a4aa3f61e7a6063",
+        "warmup_time": -1
+    },
+    "Q7_Parameters.TimeSuite.TimeQ7": {
+        "code": "class TimeSuite:\n    def TimeQ7(self, n):\n        class Q7Processor(processor.ProcessorABC):\n            def process(self, events):\n                cleanjets = events.Jet[\n                    ak.all(\n                        events.Jet.metric_table(events.Muon[events.Muon.pt > 10]) >= 0.4, axis=2\n                    )\n                    & ak.all(\n                        events.Jet.metric_table(events.Electron[events.Electron.pt > 10]) >= 0.4,\n                        axis=2,\n                    )\n                    & (events.Jet.pt > 30)\n                ]\n                return (\n                    hist.Hist.new.Reg(\n                        100, 0, 200, name=\"sumjetpt\", label=\"Jet $\\sum p_{T}$ [GeV]\"\n                    )\n                    .Double()\n                    .fill(ak.sum(cleanjets.pt, axis=1))\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q7Processor())",
+        "min_run_count": 2,
+        "name": "Q7_Parameters.TimeSuite.TimeQ7",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "fa422b19e885710cc9ce241d06da62478e008f9f2c1bdb487b1b2c66c6515d11",
+        "warmup_time": -1
+    },
+    "Q8_Parameters.TimeSuite.TimeQ8": {
+        "code": "class TimeSuite:\n    def TimeQ8(self, n):\n        class Q8Processor(processor.ProcessorABC):\n            def process(self, events):\n                events[\"Electron\", \"pdgId\"] = -11 * events.Electron.charge\n                events[\"Muon\", \"pdgId\"] = -13 * events.Muon.charge\n                events[\"leptons\"] = ak.concatenate(\n                    [events.Electron, events.Muon],\n                    axis=1,\n                )\n                events = events[ak.num(events.leptons) >= 3]\n                pair = ak.argcombinations(events.leptons, 2, fields=[\"l1\", \"l2\"])\n                pair = pair[(events.leptons[pair.l1].pdgId == -events.leptons[pair.l2].pdgId)]\n                with np.errstate(invalid=\"ignore\"):\n                    pair = pair[\n                        ak.singletons(\n                            ak.argmin(\n                                abs(\n                                    (events.leptons[pair.l1] + events.leptons[pair.l2]).mass\n                                    - 91.2\n                                ),\n                                axis=1,\n                            )\n                        )\n                    ]\n                events = events[ak.num(pair) > 0]\n                pair = pair[ak.num(pair) > 0][:, 0]\n                l3 = ak.local_index(events.leptons)\n                l3 = l3[(l3 != pair.l1) & (l3 != pair.l2)]\n                l3 = l3[ak.argmax(events.leptons[l3].pt, axis=1, keepdims=True)]\n                l3 = events.leptons[l3][:, 0]\n                mt = np.sqrt(2 * l3.pt * events.MET.pt * (1 - np.cos(events.MET.delta_phi(l3))))\n                return (\n                    hist.Hist.new.Reg(\n                        100, 0, 200, name=\"mt\", label=\"$\\ell$-MET transverse mass [GeV]\"\n                    )\n                    .Double()\n                    .fill(mt)\n                )\n            def postprocess(self, accumulator):\n                return accumulator\n        if os.environ.get(\"LABEXTENTION_FACTORY_MODULE\") == \"coffea_casa\":\n            from dask.distributed import Client\n            client = Client(\"tls://localhost:8786\")\n            executor = processor.DaskExecutor(client=client)\n        else:\n            executor = processor.IterativeExecutor()\n    \n        run = processor.Runner(executor=executor,\n                            schema=schemas.NanoAODSchema,\n                            savemetrics=True,\n                            chunksize=n,\n                            )\n        run(fileset, \"Events\", processor_instance=Q8Processor())",
+        "min_run_count": 2,
+        "name": "Q8_Parameters.TimeSuite.TimeQ8",
+        "number": 0,
+        "param_names": [
+            "param1"
+        ],
+        "params": [
+            [
+                "131072",
+                "262144",
+                "524288"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 1200.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "16050d0a10a494d4e70bed3b5213ba6d409d01b184efab574c4c9a2984683ebe",
+        "warmup_time": -1
+    },
+    "version": 2
+}
